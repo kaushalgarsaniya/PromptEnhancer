@@ -21,6 +21,7 @@ export interface EnhancePromptRequest {
 export interface EnhancePromptResponse {
   enhancedPrompt: string;
   improvements: string[];
+  detectedLanguage?: string;
 }
 
 export interface PromptExample {

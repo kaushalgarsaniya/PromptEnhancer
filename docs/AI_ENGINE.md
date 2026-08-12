@@ -29,7 +29,7 @@ Implementations:
 [Raw User Input]
        │
        ▼
-[Language Detection] ── (Detects English, Hindi, Spanish, etc.)
+[Language Detection & Auto-Translation] ── (Auto-detects 100+ languages: Spanish, Hindi, French, Gujarati, etc., and standardizes intent into English)
        │
        ▼
 [Intent Classifier] ── (Categorizes goal into Build, Learn, Code, etc.)

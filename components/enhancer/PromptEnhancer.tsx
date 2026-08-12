@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/Button';
 import { OutputLanguageOption, PresetPromptRole, EnhancePromptResponse } from '@/types';
-import { Sparkles, Copy, Check, RefreshCw, Trash2, Edit3, CheckCircle2, AlertCircle, Briefcase, ChevronDown, UserCheck, PenTool } from 'lucide-react';
+import { Sparkles, Copy, Check, RefreshCw, Trash2, CheckCircle2, AlertCircle, Briefcase, ChevronDown, UserCheck, PenTool, Globe, Download } from 'lucide-react';
 
 const LOADING_MESSAGES = [
   'Understanding your idea...',
@@ -39,8 +39,7 @@ export const PromptEnhancer: React.FC = () => {
   const [originalPromptText, setOriginalPromptText] = useState('');
   
   const [copied, setCopied] = useState(false);
-  const [isEditing, setIsEditing] = useState(false);
-  const [editedPromptText, setEditedPromptText] = useState('');
+  const [downloaded, setDownloaded] = useState(false);
 
   // Determine actual role string sent to backend API
   const activeRoleString = selectedRoleType === 'Custom' 
@@ -71,7 +70,6 @@ export const PromptEnhancer: React.FC = () => {
     setError(null);
     setIsLoading(true);
     setOriginalPromptText(target);
-    setIsEditing(false);
 
     try {
       const res = await fetch('/api/enhance', {
@@ -91,7 +89,6 @@ export const PromptEnhancer: React.FC = () => {
       }
 
       setResult(data);
-      setEditedPromptText(data.enhancedPrompt);
     } catch (err: any) {
       setError(err.message || 'Something went wrong while enhancing. Please try again.');
     } finally {
@@ -99,20 +96,94 @@ export const PromptEnhancer: React.FC = () => {
     }
   };
 
-  const handleCopy = () => {
-    const textToCopy = isEditing ? editedPromptText : result?.enhancedPrompt;
-    if (textToCopy) {
-      navigator.clipboard.writeText(textToCopy);
-      setCopied(true);
-      setTimeout(() => setCopied(false), 2000);
+  const handleCopy = (e?: React.MouseEvent) => {
+    if (e) {
+      e.preventDefault();
+      e.stopPropagation();
     }
+    const textToCopy = result?.enhancedPrompt;
+    if (!textToCopy || !textToCopy.trim()) return;
+
+    if (navigator.clipboard && window.isSecureContext) {
+      navigator.clipboard
+        .writeText(textToCopy)
+        .then(() => {
+          setCopied(true);
+          setTimeout(() => setCopied(false), 2000);
+        })
+        .catch(() => {
+          fallbackCopyTextToClipboard(textToCopy);
+        });
+    } else {
+      fallbackCopyTextToClipboard(textToCopy);
+    }
+  };
+
+  const fallbackCopyTextToClipboard = (text: string) => {
+    try {
+      const textArea = document.createElement('textarea');
+      textArea.value = text;
+      textArea.style.position = 'fixed';
+      textArea.style.top = '0';
+      textArea.style.left = '0';
+      textArea.style.opacity = '0';
+      document.body.appendChild(textArea);
+      textArea.focus();
+      textArea.select();
+      const successful = document.execCommand('copy');
+      document.body.removeChild(textArea);
+      if (successful) {
+        setCopied(true);
+        setTimeout(() => setCopied(false), 2000);
+      }
+    } catch (err) {
+      console.error('Fallback copy failed', err);
+    }
+  };
+
+  const handleDownload = (e?: React.MouseEvent) => {
+    if (e) {
+      e.preventDefault();
+      e.stopPropagation();
+    }
+
+    const textToDownload = result?.enhancedPrompt;
+    if (!textToDownload || !textToDownload.trim()) return;
+
+    try {
+      const blob = new Blob([textToDownload], { type: 'text/markdown;charset=utf-8' });
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.setAttribute('download', 'prompt.md');
+      link.style.display = 'none';
+      document.body.appendChild(link);
+      link.click();
+      setTimeout(() => {
+        if (document.body.contains(link)) {
+          document.body.removeChild(link);
+        }
+        window.URL.revokeObjectURL(url);
+      }, 200);
+    } catch (err) {
+      // Fallback Data URI download method
+      const encodedUri = 'data:text/markdown;charset=utf-8,' + encodeURIComponent(textToDownload);
+      const link = document.createElement('a');
+      link.setAttribute('href', encodedUri);
+      link.setAttribute('download', 'prompt.md');
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    }
+
+    setDownloaded(true);
+    setTimeout(() => setDownloaded(false), 2000);
   };
 
   const handleClear = () => {
     setPrompt('');
     setResult(null);
     setError(null);
-    setIsEditing(false);
   };
 
   return (
@@ -213,10 +284,17 @@ export const PromptEnhancer: React.FC = () => {
 
         {/* STEP 2: BALANCED TEXTAREA */}
         <div className="space-y-2">
-          <label className="text-xs font-bold text-zinc-900 dark:text-white uppercase tracking-wider flex items-center gap-1.5">
-            <Briefcase className="w-4 h-4 text-zinc-900 dark:text-white" />
-            2. Write Prompt or Idea
-          </label>
+          <div className="flex flex-wrap items-center justify-between gap-2">
+            <label className="text-xs font-bold text-zinc-900 dark:text-white uppercase tracking-wider flex items-center gap-1.5">
+              <Briefcase className="w-4 h-4 text-zinc-900 dark:text-white" />
+              2. Write Prompt or Idea
+            </label>
+            <span className="inline-flex items-center gap-1 text-[11px] font-semibold text-emerald-700 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/80 px-2 py-0.5 rounded-md border border-emerald-200 dark:border-emerald-800/80">
+              <Globe className="w-3 h-3 text-emerald-600 dark:text-emerald-400" />
+              Any Language Supported (Spanish, Hindi, French, Gujarati, etc.)
+            </span>
+          </div>
+
           <textarea
             value={prompt}
             onChange={(e) => {
@@ -229,12 +307,14 @@ export const PromptEnhancer: React.FC = () => {
                 handleEnhance();
               }
             }}
-            placeholder={`Write your prompt or idea here...`}
+            placeholder="Type your prompt or code idea in ANY language (e.g., Spanish, Hindi, French, German, Japanese, Gujarati)... AI will auto-translate & enhance it into English code instructions!"
             className="w-full h-36 sm:h-40 bg-zinc-50 dark:bg-black border border-zinc-200 dark:border-zinc-800 rounded-xl p-4 text-xs sm:text-sm text-zinc-900 dark:text-white placeholder:text-zinc-400 dark:placeholder:text-zinc-600 focus:outline-none focus:border-zinc-400 dark:focus:border-zinc-500 font-sans leading-relaxed resize-none transition-colors"
           />
 
-          <div className="flex items-center justify-between text-[11px] text-zinc-500 font-mono px-0.5">
-            <span>Press Ctrl + Enter to enhance</span>
+          <div className="flex flex-wrap items-center justify-between text-[11px] text-zinc-500 font-mono gap-1 px-0.5">
+            <span className="flex items-center gap-1">
+              <Globe className="w-3 h-3 text-zinc-400" /> Auto-translates non-English inputs to English • Press Ctrl + Enter
+            </span>
             <span>{prompt.length} characters</span>
           </div>
         </div>
@@ -305,19 +385,27 @@ export const PromptEnhancer: React.FC = () => {
       {result && !isLoading && (
         <div className="bg-white dark:bg-zinc-900 rounded-2xl border border-zinc-200 dark:border-zinc-800 p-6 sm:p-7 space-y-5 shadow-lg dark:shadow-2xl transition-colors">
           <div className="flex flex-wrap items-center justify-between gap-3 pb-3 border-b border-zinc-200 dark:border-zinc-800">
-            <h3 className="text-xs sm:text-sm font-bold text-zinc-900 dark:text-white flex items-center gap-2">
-              <CheckCircle2 className="w-4 h-4 text-zinc-900 dark:text-white" /> Enhanced Prompt Result
-            </h3>
-            <div className="flex items-center gap-2">
-              <Button size="sm" variant="ghost" onClick={() => setIsEditing(!isEditing)}>
-                <Edit3 className="w-3.5 h-3.5" />
-                <span>{isEditing ? 'Cancel Edit' : 'Edit'}</span>
-              </Button>
+            <div className="flex flex-wrap items-center gap-2">
+              <h3 className="text-xs sm:text-sm font-bold text-zinc-900 dark:text-white flex items-center gap-2">
+                <CheckCircle2 className="w-4 h-4 text-zinc-900 dark:text-white" /> Enhanced Prompt Result
+              </h3>
+              {result.detectedLanguage && (
+                <span className="px-2.5 py-0.5 rounded-md text-[11px] font-semibold bg-blue-50 dark:bg-blue-950/80 text-blue-700 dark:text-blue-300 border border-blue-200 dark:border-blue-800/80 inline-flex items-center gap-1">
+                  <Globe className="w-3 h-3 text-blue-600 dark:text-blue-400" />
+                  {result.detectedLanguage} Input ➔ English Output
+                </span>
+              )}
+            </div>
+            <div className="flex items-center gap-2 flex-wrap">
               <Button size="sm" variant="outline" onClick={() => handleEnhance(originalPromptText)}>
                 <RefreshCw className="w-3.5 h-3.5 text-zinc-700 dark:text-white" />
                 <span>Regenerate</span>
               </Button>
-              <Button size="sm" onClick={handleCopy}>
+              <Button size="sm" variant="outline" onClick={(e) => handleDownload(e)}>
+                {downloaded ? <Check className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" /> : <Download className="w-3.5 h-3.5 text-zinc-700 dark:text-white" />}
+                <span>{downloaded ? 'Downloaded!' : 'Download .md'}</span>
+              </Button>
+              <Button size="sm" onClick={(e) => handleCopy(e)}>
                 {copied ? <Check className="w-3.5 h-3.5 text-white dark:text-black" /> : <Copy className="w-3.5 h-3.5 text-white dark:text-black" />}
                 <span>{copied ? 'Copied!' : 'Copy Prompt'}</span>
               </Button>
@@ -330,25 +418,13 @@ export const PromptEnhancer: React.FC = () => {
               <span className="text-xs font-bold text-zinc-900 dark:text-white uppercase tracking-wider flex items-center gap-1.5">
                 <Sparkles className="w-4 h-4 text-zinc-900 dark:text-white" /> Enhanced Prompt ({activeRoleString})
               </span>
-              {isEditing && <span className="text-xs text-zinc-500 font-mono">Editing Mode</span>}
             </div>
 
-            {isEditing ? (
-              <textarea
-                value={editedPromptText}
-                onChange={(e) => setEditedPromptText(e.target.value)}
-                className="w-full min-h-[150px] max-h-72 p-4 rounded-xl bg-zinc-50 dark:bg-black border border-zinc-300 dark:border-zinc-700 text-xs sm:text-sm text-zinc-900 dark:text-white leading-relaxed font-mono focus:outline-none focus:border-zinc-500 resize-y shadow-inner"
-              />
-            ) : (
-              <div className="rounded-xl border border-zinc-800 dark:border-zinc-800 bg-zinc-900 dark:bg-zinc-950 overflow-hidden shadow-sm">
-                <div className="p-4 sm:p-5 text-xs sm:text-sm text-white dark:text-zinc-100 leading-relaxed font-mono whitespace-pre-wrap min-h-[150px] sm:min-h-[170px] max-h-72 overflow-y-auto">
-                  {editedPromptText}
-                </div>
+            <div className="rounded-xl border border-zinc-800 dark:border-zinc-800 bg-zinc-900 dark:bg-zinc-950 overflow-hidden shadow-sm">
+              <div className="p-4 sm:p-5 text-xs sm:text-sm text-white dark:text-zinc-100 leading-relaxed font-mono whitespace-pre-wrap min-h-[150px] sm:min-h-[170px] max-h-72 overflow-y-auto">
+                {result.enhancedPrompt}
               </div>
-            )}
-
-
-
+            </div>
           </div>
 
 

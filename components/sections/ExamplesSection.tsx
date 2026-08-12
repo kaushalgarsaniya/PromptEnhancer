@@ -3,22 +3,28 @@ import React from 'react';
 export const ExamplesSection: React.FC = () => {
   const examples = [
     {
+      title: 'Multi-Language Input (Hindi / Spanish / Any)',
+      role: '🌐 Web Development',
+      before: 'mujhe ek online store website banani hai react me with shopping cart',
+      after: `[ROLE & PERSONA]\nLead Frontend Systems Architect & UI Specialist\n\n[OBJECTIVE & SCOPE]\nBuild a modern, responsive E-Commerce web application in React.\n\n[CORE RULES & TECHNICAL CONSTRAINTS]\n- Multi-language input detected & standardized into English architecture.\n- Write clean, modular TypeScript components following SOLID principles.\n- Implement responsive shopping cart state management & product catalog.\n\n[EXPECTED OUTPUT FORMAT]\nProduction-ready Next.js & React code in English.`,
+    },
+    {
       title: 'Web Development Request',
       role: '🌐 Web Development',
       before: 'make website for gym',
-      after: `🎯 ROLE: Lead Frontend Systems Architect\n📍 OBJECTIVE: Build a responsive, high-converting gym landing page.\n⚡ EXECUTION RULES:\n- Modern UI layout with sleek typography & smooth micro-animations.\n- Fully responsive adaptation across mobile, tablet, and desktop.\n- Include services, class schedule & user-friendly booking form.\n📄 OUTPUT FORMAT: Production-ready Next.js & Tailwind component code.`,
+      after: `[ROLE & PERSONA]\nLead Frontend Systems Architect\n\n[OBJECTIVE & SCOPE]\nBuild a responsive, high-converting gym landing page.\n\n[CORE RULES & TECHNICAL CONSTRAINTS]\n- Modern UI layout with sleek typography & smooth micro-animations.\n- Fully responsive adaptation across mobile, tablet, and desktop.\n- Include services, class schedule & user-friendly booking form.\n\n[EXPECTED OUTPUT FORMAT]\nProduction-ready Next.js & Tailwind component code.`,
     },
     {
       title: 'Learning & Tutoring Request',
       role: '🎓 Educational Tutor',
       before: 'teach me java basics',
-      after: `🎯 ROLE: Senior Academic Educator & Pedagogical Expert\n📍 OBJECTIVE: Teach Java from core fundamentals to advanced OOP mastery.\n⚡ EXECUTION RULES:\n- Break down complex terms into simple step-by-step building blocks.\n- Anchor key takeaways with practical real-world analogies.\n- Include 3 self-assessment verification questions with answer keys.\n📄 OUTPUT FORMAT: Comprehensive educational guide with code examples.`,
+      after: `[ROLE & PERSONA]\nSenior Academic Educator & Pedagogical Expert\n\n[OBJECTIVE & SCOPE]\nTeach Java from core fundamentals to advanced OOP mastery.\n\n[CORE RULES & TECHNICAL CONSTRAINTS]\n- Break down complex terms into simple step-by-step building blocks.\n- Anchor key takeaways with practical real-world analogies.\n- Include 3 self-assessment verification questions with answer keys.\n\n[EXPECTED OUTPUT FORMAT]\nComprehensive educational guide with code examples.`,
     },
     {
       title: 'Code Debugging Request',
       role: '💻 Software Developer',
       before: 'fix my code error',
-      after: `🎯 ROLE: Principal Software Architect & Debugging Expert\n📍 OBJECTIVE: Analyze, refactor, and fix code runtime failures.\n⚡ EXECUTION RULES:\n- Identify root cause error & explain performance impact clearly.\n- Provide production-ready, type-safe code with zero placeholders.\n- Include edge-case validation and unit test verification steps.\n📄 OUTPUT FORMAT: Executable corrected code block with technical breakdown.`,
+      after: `[ROLE & PERSONA]\nPrincipal Software Architect & Debugging Expert\n\n[OBJECTIVE & SCOPE]\nAnalyze, refactor, and fix code runtime failures.\n\n[CORE RULES & TECHNICAL CONSTRAINTS]\n- Identify root cause error & explain performance impact clearly.\n- Provide production-ready, type-safe code with zero placeholders.\n- Include edge-case validation and unit test verification steps.\n\n[EXPECTED OUTPUT FORMAT]\nExecutable corrected code block with technical breakdown.`,
     },
   ];
 
@@ -32,7 +38,7 @@ export const ExamplesSection: React.FC = () => {
         </p>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
         {examples.map((ex, idx) => (
           <div
             key={idx}

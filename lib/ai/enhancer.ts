@@ -17,7 +17,10 @@ export async function enhancePrompt(req: EnhancePromptRequest): Promise<EnhanceP
 
       for (const mName of modelNames) {
         try {
-          model = genAI.getGenerativeModel({ model: mName });
+          model = genAI.getGenerativeModel({ 
+            model: mName,
+            generationConfig: { responseMimeType: 'application/json' }
+          });
           if (model) break;
         } catch {
           // try next model name
@@ -25,7 +28,10 @@ export async function enhancePrompt(req: EnhancePromptRequest): Promise<EnhanceP
       }
 
       if (!model) {
-        model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash-latest' });
+        model = genAI.getGenerativeModel({ 
+          model: 'gemini-1.5-flash-latest',
+          generationConfig: { responseMimeType: 'application/json' }
+        });
       }
 
       const isAutoDetect = role === 'Auto Detect' || role === '';
@@ -89,14 +95,9 @@ MANDATE: Understand intent from "${rawPrompt}" (which may be in Gujarati or othe
       const result = await model.generateContent(`${systemInstruction}\n\n${promptPayload}`);
       const text = result.response.text();
       
-      const cleanJson = text
-        .replace(/```json\s*/gi, '')
-        .replace(/```\s*/g, '')
-        .trim();
+      const parsed = parseJsonSafely(text);
 
-      const parsed = JSON.parse(cleanJson);
-
-      if (parsed.enhancedPrompt && Array.isArray(parsed.improvements)) {
+      if (parsed && parsed.enhancedPrompt && Array.isArray(parsed.improvements)) {
         const detectedLang = parsed.detectedLanguage || detectBasicLanguage(rawPrompt);
         const improvementsList = [...parsed.improvements.slice(0, 5)];
         if (detectedLang && detectedLang !== 'English' && outputLang !== 'Same as input') {
@@ -299,3 +300,29 @@ export function getEnglishCleanScope(rawPrompt: string, outputLang: OutputLangua
 
   return cleanEnglish;
 }
+
+function parseJsonSafely(text: string): any {
+  if (!text) return null;
+  const cleaned = text
+    .replace(/```json\s*/gi, '')
+    .replace(/```\s*/g, '')
+    .trim();
+
+  try {
+    return JSON.parse(cleaned);
+  } catch (e) {
+    try {
+      // Escape unescaped control characters inside JSON string values
+      const sanitized = cleaned.replace(/[\u0000-\u001F]/g, (char) => {
+        if (char === '\n') return '\\n';
+        if (char === '\r') return '\\r';
+        if (char === '\t') return '\\t';
+        return '';
+      });
+      return JSON.parse(sanitized);
+    } catch {
+      return null;
+    }
+  }
+}
+

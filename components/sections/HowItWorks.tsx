@@ -1,5 +1,5 @@
 import React from 'react';
-import { PenTool, Brain, Sparkles, CheckCircle } from 'lucide-react';
+import { PenTool, Brain, Zap, CheckCircle } from 'lucide-react';
 
 export const HowItWorks: React.FC = () => {
   const steps = [
@@ -19,7 +19,7 @@ export const HowItWorks: React.FC = () => {
       num: '03',
       title: 'ENHANCE',
       desc: 'Your idea becomes clearer and more structured.',
-      icon: Sparkles,
+      icon: Zap,
     },
     {
       num: '04',

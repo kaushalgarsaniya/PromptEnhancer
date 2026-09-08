@@ -4,7 +4,8 @@ import React, { useState } from 'react';
 import Link from 'next/link';
 import { Button } from '@/components/ui/Button';
 import { useTheme } from '@/components/theme/ThemeContext';
-import { Sparkles, Menu, X, Sun, Moon } from 'lucide-react';
+import { PromptLogo } from '@/components/ui/Logo';
+import { Zap, Menu, X, Sun, Moon } from 'lucide-react';
 
 export const Navbar: React.FC = () => {
   const [mobileOpen, setMobileOpen] = useState(false);
@@ -28,9 +29,9 @@ export const Navbar: React.FC = () => {
     <header className="sticky top-0 z-50 w-full border-b border-zinc-200 dark:border-zinc-800 bg-white/95 dark:bg-black/95 backdrop-blur-md transition-colors">
       <div className="max-w-6xl mx-auto px-3.5 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
         {/* Brand Logo */}
-        <Link href="/" className="flex items-center gap-2 group shrink-0">
+        <Link href="/" className="flex items-center gap-2.5 group shrink-0">
           <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-lg bg-black text-white dark:bg-white dark:text-black flex items-center justify-center font-bold shadow-sm transition-transform duration-150 group-hover:scale-[1.03]">
-            <Sparkles className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-white dark:text-black" />
+            <PromptLogo className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-white dark:text-black" />
           </div>
           <span className="text-sm sm:text-base font-extrabold tracking-tight text-zinc-900 dark:text-white">
             Prompt<span className="text-zinc-500 dark:text-zinc-400 font-normal">Enhancer</span>
@@ -70,7 +71,7 @@ export const Navbar: React.FC = () => {
           </button>
 
           <Button size="sm" onClick={scrollToEditor} className="px-4 py-2 text-xs">
-            <Sparkles className="w-3.5 h-3.5 text-white dark:text-black" />
+            <Zap className="w-3.5 h-3.5 text-white dark:text-black fill-current" />
             <span>Enhance Prompt</span>
           </Button>
         </div>
@@ -128,7 +129,7 @@ export const Navbar: React.FC = () => {
               }}
               className="w-full justify-center py-2.5"
             >
-              <Sparkles className="w-4 h-4 text-white dark:text-black" />
+              <Zap className="w-4 h-4 text-white dark:text-black fill-current" />
               <span>Enhance Prompt</span>
             </Button>
           </div>

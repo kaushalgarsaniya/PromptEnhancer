@@ -3,7 +3,8 @@
 import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/Button';
 import { OutputLanguageOption, PresetPromptRole, EnhancePromptResponse } from '@/types';
-import { Sparkles, Copy, Check, RefreshCw, Trash2, CheckCircle2, AlertCircle, Briefcase, ChevronDown, UserCheck, PenTool, Globe, Download } from 'lucide-react';
+import { PromptLogo } from '@/components/ui/Logo';
+import { Zap, Copy, Check, RefreshCw, Trash2, CheckCircle2, AlertCircle, Briefcase, ChevronDown, UserCheck, PenTool, Globe, Download } from 'lucide-react';
 
 const LOADING_MESSAGES = [
   'Understanding your idea...',
@@ -195,7 +196,7 @@ export const PromptEnhancer: React.FC = () => {
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 border-b border-zinc-200 dark:border-zinc-800 pb-3.5">
           <div className="space-y-0.5">
             <h2 className="text-base sm:text-lg font-bold text-zinc-900 dark:text-white flex items-center gap-2">
-              <Sparkles className="w-5 h-5 text-zinc-900 dark:text-white shrink-0" /> AI Prompt Enhancer
+              <PromptLogo className="w-5 h-5 text-zinc-900 dark:text-white shrink-0" /> AI Prompt Enhancer
             </h2>
             <p className="text-[11px] sm:text-xs text-zinc-600 dark:text-zinc-400">
               Select or type a role persona, write your prompt idea, and let AI transform it into structured instructions.
@@ -357,7 +358,7 @@ export const PromptEnhancer: React.FC = () => {
               </>
             ) : (
               <>
-                <Sparkles className="w-4 h-4 text-white dark:text-black" />
+                <Zap className="w-4 h-4 text-white dark:text-black fill-current" />
                 <span>Enhance Prompt</span>
               </>
             )}
@@ -369,7 +370,7 @@ export const PromptEnhancer: React.FC = () => {
       {isLoading && (
         <div className="bg-white dark:bg-zinc-900 rounded-2xl border border-zinc-200 dark:border-zinc-800 p-6 sm:p-8 text-center space-y-3 shadow-lg transition-colors">
           <div className="w-10 h-10 rounded-full bg-black text-white dark:bg-white dark:text-black flex items-center justify-center mx-auto shadow-md animate-pulse">
-            <Sparkles className="w-5 h-5 text-white dark:text-black" />
+            <PromptLogo className="w-5 h-5 text-white dark:text-black" />
           </div>
           <div className="space-y-1">
             <p className="text-xs sm:text-sm font-bold text-zinc-900 dark:text-white">
@@ -409,7 +410,7 @@ export const PromptEnhancer: React.FC = () => {
           <div className="space-y-2">
             <div className="flex items-center justify-between">
               <span className="text-xs font-bold text-zinc-900 dark:text-white uppercase tracking-wider flex items-center gap-1.5">
-                <Sparkles className="w-4 h-4 text-zinc-900 dark:text-white shrink-0" /> Enhanced Prompt ({activeRoleString})
+                <PromptLogo className="w-4 h-4 text-zinc-900 dark:text-white shrink-0" /> Enhanced Prompt ({activeRoleString})
               </span>
             </div>
 

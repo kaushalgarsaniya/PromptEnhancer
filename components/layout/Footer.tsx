@@ -1,5 +1,5 @@
 import React from 'react';
-import { Sparkles } from 'lucide-react';
+import { PromptLogo } from '@/components/ui/Logo';
 
 export const Footer: React.FC = () => {
   return (
@@ -7,7 +7,7 @@ export const Footer: React.FC = () => {
       <div className="max-w-6xl mx-auto px-3.5 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-3 sm:gap-4">
         <div className="flex items-center gap-2">
           <div className="w-6 h-6 rounded bg-black text-white dark:bg-white dark:text-black flex items-center justify-center font-bold shadow-sm">
-            <Sparkles className="w-3.5 h-3.5 text-white dark:text-black" />
+            <PromptLogo className="w-3.5 h-3.5 text-white dark:text-black" />
           </div>
           <span className="text-sm font-bold text-zinc-900 dark:text-white tracking-tight">PromptEnhancer</span>
         </div>

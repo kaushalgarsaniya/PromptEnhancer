@@ -2,7 +2,7 @@
 
 import React from 'react';
 import { Button } from '@/components/ui/Button';
-import { Sparkles, ArrowDown } from 'lucide-react';
+import { Zap, ArrowDown } from 'lucide-react';
 
 export const Hero: React.FC = () => {
   const scrollToEditor = () => {
@@ -26,7 +26,7 @@ export const Hero: React.FC = () => {
 
         <div className="pt-2 sm:pt-4 flex flex-col items-center space-y-3 w-full sm:w-auto">
           <Button size="lg" onClick={scrollToEditor} className="w-full sm:w-auto px-6 sm:px-8 py-3 sm:py-3.5 text-xs sm:text-sm font-semibold shadow-lg justify-center">
-            <Sparkles className="w-4 h-4 text-white dark:text-black" />
+            <Zap className="w-4 h-4 text-white dark:text-black fill-current" />
             <span>Enhance My Prompt</span>
             <ArrowDown className="w-4 h-4 text-white dark:text-black animate-bounce" />
           </Button>

@@ -45,7 +45,7 @@ export default function MainPage() {
 
         <Navbar />
 
-        <main className="flex-1">
+        <main className="flex-1 pt-28 sm:pt-32">
           <Hero />
           <PromptEnhancer />
           <HowItWorks />

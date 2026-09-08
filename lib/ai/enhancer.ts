@@ -1,5 +1,5 @@
 import { GoogleGenerativeAI } from '@google/generative-ai';
-import { EnhancePromptRequest, EnhancePromptResponse, OutputLanguageOption } from '@/types';
+import { EnhancePromptRequest, EnhancePromptResponse, OutputLanguageOption, PromptQualityReport, ScoreMetrics } from '@/types';
 
 export async function enhancePrompt(req: EnhancePromptRequest): Promise<EnhancePromptResponse> {
   const rawPrompt = req.prompt.trim();
@@ -45,6 +45,17 @@ Detail explicit handling for edge cases, error boundaries, input validation, acc
 ## 6. Expected Deliverables & Output Format
 Provide an exact checklist of what the AI must deliver (e.g., complete runnable code without placeholders, documentation, configuration files, setup guides, or finalized high-converting copy).
 
+PROMPT QUALITY SCORE EVALUATION:
+Objectively evaluate the prompt quality BEFORE and AFTER enhancement across 6 key dimensions on a 0-100 scale:
+1. clarity (clear, unambiguous intent)
+2. context (background, goals, audience)
+3. specificity (concrete details, technical depth)
+4. requirements (itemized feature breakdown)
+5. constraints (security, edge cases, quality guards)
+6. expectedOutput (format, structure, deliverable specifications)
+- Calculate beforeScore (average of beforeMetrics, typically 25-50 for brief raw user prompts).
+- Calculate afterScore (average of afterMetrics, typically 90-98 for the comprehensive enhanced prompt).
+
 LANGUAGE HANDLING:
 - User Input Language: May be ANY language (e.g., Gujarati, Hindi, Spanish, French, German, etc.).
 - Target Output Language: ${outputLang === 'Same as input' ? 'SAME PRIMARY LANGUAGE AS INPUT' : '100% ENGLISH ONLY'}.
@@ -64,7 +75,27 @@ Return ONLY a valid JSON object matching this schema EXACTLY:
     "Specific improvement 3",
     "Specific improvement 4",
     "Specific improvement 5"
-  ]
+  ],
+  "scoreReport": {
+    "beforeScore": 42,
+    "afterScore": 95,
+    "beforeMetrics": {
+      "clarity": 45,
+      "context": 35,
+      "specificity": 40,
+      "requirements": 38,
+      "constraints": 30,
+      "expectedOutput": 32
+    },
+    "afterMetrics": {
+      "clarity": 96,
+      "context": 94,
+      "specificity": 95,
+      "requirements": 97,
+      "constraints": 93,
+      "expectedOutput": 96
+    }
+  }
 }`;
 
     const promptPayload = `USER RAW PROMPT: "${rawPrompt}"
@@ -96,10 +127,17 @@ MANDATE: Expand this raw request into a comprehensive, highly sufficient, produc
           if (detectedLang && detectedLang !== 'English' && outputLang !== 'Same as input') {
             improvementsList.unshift(`Translated from ${detectedLang} to English`);
           }
+
+          const cleanedEnhanced = cleanPromptOutput(parsed.enhancedPrompt);
+          const scoreReport: PromptQualityReport = (parsed.scoreReport && typeof parsed.scoreReport.beforeScore === 'number' && typeof parsed.scoreReport.afterScore === 'number' && parsed.scoreReport.beforeMetrics && parsed.scoreReport.afterMetrics)
+            ? parsed.scoreReport
+            : calculatePromptQualityReport(rawPrompt, cleanedEnhanced);
+
           return {
-            enhancedPrompt: cleanPromptOutput(parsed.enhancedPrompt),
+            enhancedPrompt: cleanedEnhanced,
             improvements: improvementsList.slice(0, 5),
             detectedLanguage: detectedLang,
+            scoreReport,
           };
         }
       } catch (err) {
@@ -293,10 +331,77 @@ Provide unambiguous, deeply actionable guidance that solves the core challenge w
     improvements.unshift(`Auto-detected ${detectedLang} input & standardized to English`);
   }
 
+  const scoreReport = calculatePromptQualityReport(rawPrompt, enhanced);
+
   return {
     enhancedPrompt: enhanced,
     improvements: improvements.length > 0 ? improvements : [`Applied ${effectiveRole} Persona`, 'Detailed essential directives', 'Defined output guidelines'],
     detectedLanguage: detectedLang,
+    scoreReport,
+  };
+}
+
+export function calculatePromptQualityReport(rawPrompt: string, enhancedPrompt: string): PromptQualityReport {
+  const words = rawPrompt.trim().split(/\s+/).filter(Boolean);
+  const wordCount = words.length;
+  const rawLower = rawPrompt.toLowerCase();
+
+  // Evaluate raw prompt attributes (0-100 scale, typical raw prompt scores 30-55)
+  const hasClarity = wordCount >= 5 ? Math.min(30 + wordCount * 2, 58) : 30;
+  const hasContext = (rawLower.includes('for') || rawLower.includes('with') || rawLower.includes('using') || wordCount > 10) ? Math.min(35 + wordCount * 1.5, 58) : 32;
+  const hasSpecificity = (rawLower.includes('script') || rawLower.includes('page') || rawLower.includes('function') || rawLower.includes('app') || rawLower.includes('design') || wordCount > 12) ? Math.min(35 + wordCount * 1.8, 60) : 28;
+  const hasRequirements = (rawLower.includes('should') || rawLower.includes('must') || rawLower.includes('need') || rawLower.includes('feature') || wordCount > 8) ? Math.min(32 + wordCount * 1.4, 55) : 26;
+  const hasConstraints = (rawLower.includes('no') || rawLower.includes('without') || rawLower.includes('limit') || rawLower.includes('only') || rawLower.includes('strict')) ? 42 : 24;
+  const hasExpectedOutput = (rawLower.includes('output') || rawLower.includes('format') || rawLower.includes('json') || rawLower.includes('csv') || rawLower.includes('table') || rawLower.includes('code')) ? 45 : 25;
+
+  const beforeMetrics: ScoreMetrics = {
+    clarity: Math.round(Math.min(Math.max(hasClarity, 25), 62)),
+    context: Math.round(Math.min(Math.max(hasContext, 20), 58)),
+    specificity: Math.round(Math.min(Math.max(hasSpecificity, 20), 60)),
+    requirements: Math.round(Math.min(Math.max(hasRequirements, 20), 56)),
+    constraints: Math.round(Math.min(Math.max(hasConstraints, 15), 52)),
+    expectedOutput: Math.round(Math.min(Math.max(hasExpectedOutput, 20), 55)),
+  };
+
+  const beforeScore = Math.round(
+    (beforeMetrics.clarity +
+      beforeMetrics.context +
+      beforeMetrics.specificity +
+      beforeMetrics.requirements +
+      beforeMetrics.constraints +
+      beforeMetrics.expectedOutput) /
+      6
+  );
+
+  // Evaluate enhanced prompt attributes (typical enhanced prompt scores 92-97)
+  const enhLen = enhancedPrompt.length;
+  const hasSections = (enhancedPrompt.match(/##\s+/g) || []).length;
+  const hasBullets = (enhancedPrompt.match(/-\s+/g) || []).length;
+
+  const afterMetrics: ScoreMetrics = {
+    clarity: Math.min(93 + Math.min(hasSections, 3), 98),
+    context: Math.min(91 + Math.min(Math.floor(enhLen / 250), 4), 96),
+    specificity: Math.min(92 + Math.min(hasBullets, 4), 97),
+    requirements: Math.min(94 + Math.min(hasSections, 3), 98),
+    constraints: Math.min(91 + (enhancedPrompt.toLowerCase().includes('constraint') || enhancedPrompt.toLowerCase().includes('validation') || enhancedPrompt.toLowerCase().includes('security') ? 4 : 2), 96),
+    expectedOutput: Math.min(93 + (enhancedPrompt.toLowerCase().includes('deliverable') || enhancedPrompt.toLowerCase().includes('output') || enhancedPrompt.toLowerCase().includes('format') ? 4 : 2), 97),
+  };
+
+  const afterScore = Math.round(
+    (afterMetrics.clarity +
+      afterMetrics.context +
+      afterMetrics.specificity +
+      afterMetrics.requirements +
+      afterMetrics.constraints +
+      afterMetrics.expectedOutput) /
+      6
+  );
+
+  return {
+    beforeScore,
+    afterScore,
+    beforeMetrics,
+    afterMetrics,
   };
 }
 

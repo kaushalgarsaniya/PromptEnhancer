@@ -4,6 +4,7 @@ import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/Button';
 import { OutputLanguageOption, PresetPromptRole, EnhancePromptResponse } from '@/types';
 import { PromptLogo } from '@/components/ui/Logo';
+import { PromptScoreCard } from '@/components/enhancer/PromptScoreCard';
 import { Zap, Copy, Check, RefreshCw, Trash2, CheckCircle2, AlertCircle, Briefcase, ChevronDown, UserCheck, PenTool, Globe, Download } from 'lucide-react';
 
 const LOADING_MESSAGES = [
@@ -13,15 +14,15 @@ const LOADING_MESSAGES = [
   'Preparing your enhanced prompt...',
 ];
 
-const PRESET_ROLES: { value: PresetPromptRole; label: string; icon: string }[] = [
-  { value: 'Auto Detect', label: 'Auto Detect', icon: '⚡' },
-  { value: 'Software Developer', label: 'Software Developer', icon: '💻' },
-  { value: 'Web Development', label: 'Web Development', icon: '🌐' },
-  { value: 'AI Image Generation', label: 'AI Image Generation', icon: '🎨' },
-  { value: 'Content Writing & Copy', label: 'Content Writing & Copy', icon: '✍️' },
-  { value: 'Data Science & Analysis', label: 'Data Science', icon: '📊' },
-  { value: 'Education & Tutoring', label: 'Educational Tutor', icon: '🎓' },
-  { value: 'Business & Marketing', label: 'Business & Marketing', icon: '📈' },
+const PRESET_ROLES: { value: PresetPromptRole; label: string }[] = [
+  { value: 'Auto Detect', label: 'Auto Detect' },
+  { value: 'Software Developer', label: 'Software Developer' },
+  { value: 'Web Development', label: 'Web Development' },
+  { value: 'AI Image Generation', label: 'AI Image Generation' },
+  { value: 'Content Writing & Copy', label: 'Content Writing & Copy' },
+  { value: 'Data Science & Analysis', label: 'Data Science' },
+  { value: 'Education & Tutoring', label: 'Educational Tutor' },
+  { value: 'Business & Marketing', label: 'Business & Marketing' },
 ];
 
 export const PromptEnhancer: React.FC = () => {
@@ -238,13 +239,12 @@ export const PromptEnhancer: React.FC = () => {
                     key={r.value}
                     type="button"
                     onClick={() => setSelectedRoleType(r.value)}
-                    className={`inline-flex items-center justify-center sm:justify-start gap-1.5 px-2.5 py-1.5 sm:px-3 sm:py-1.5 rounded-lg text-[11px] sm:text-xs font-medium transition-all ${
+                    className={`inline-flex items-center justify-center sm:justify-start px-2.5 py-1.5 sm:px-3 sm:py-1.5 rounded-lg text-[11px] sm:text-xs font-medium transition-all ${
                       isSelected
                         ? 'bg-black text-white dark:bg-white dark:text-black font-bold shadow-md scale-[1.01]'
                         : 'bg-white dark:bg-zinc-900 text-zinc-700 dark:text-zinc-300 hover:bg-zinc-200 dark:hover:bg-zinc-800 border border-zinc-200 dark:border-zinc-800'
                     }`}
                   >
-                    <span>{r.icon}</span>
                     <span className="truncate">{r.label}</span>
                   </button>
                 );
@@ -405,6 +405,11 @@ export const PromptEnhancer: React.FC = () => {
               </Button>
             </div>
           </div>
+
+          {/* PROMPT QUALITY SCORE REPORT */}
+          {result.scoreReport && (
+            <PromptScoreCard scoreReport={result.scoreReport} />
+          )}
 
           {/* FULL WIDTH ENHANCED PROMPT RESULT */}
           <div className="space-y-2">

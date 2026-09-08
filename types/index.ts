@@ -18,10 +18,27 @@ export interface EnhancePromptRequest {
   promptRole?: string;
 }
 
+export interface ScoreMetrics {
+  clarity: number;
+  context: number;
+  specificity: number;
+  requirements: number;
+  constraints: number;
+  expectedOutput: number;
+}
+
+export interface PromptQualityReport {
+  beforeScore: number;
+  afterScore: number;
+  beforeMetrics: ScoreMetrics;
+  afterMetrics: ScoreMetrics;
+}
+
 export interface EnhancePromptResponse {
   enhancedPrompt: string;
   improvements: string[];
   detectedLanguage?: string;
+  scoreReport?: PromptQualityReport;
 }
 
 export interface PromptExample {

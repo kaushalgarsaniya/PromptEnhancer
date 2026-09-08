@@ -9,108 +9,102 @@ export async function enhancePrompt(req: EnhancePromptRequest): Promise<EnhanceP
   const apiKey = process.env.GEMINI_API_KEY;
 
   if (apiKey && apiKey.trim() !== '' && apiKey !== 'your-gemini-api-key') {
-    try {
-      const genAI = new GoogleGenerativeAI(apiKey.trim());
+    const genAI = new GoogleGenerativeAI(apiKey.trim());
 
-      const modelNames = ['gemini-2.5-flash', 'gemini-2.0-flash', 'gemini-1.5-flash-latest', 'gemini-1.5-flash', 'gemini-1.5-pro'];
-      let model;
+    const isAutoDetect = role === 'Auto Detect' || role === '';
+    const roleDirective = !isAutoDetect
+      ? `TARGET PERSONA: "${role}". You MUST engineer the prompt specifically for a master-level specialist in "${role}".`
+      : `TARGET PERSONA: Auto-detect the most specialized domain authority (e.g. Principal Cloud Solutions Architect, Senior Frontend Engineer, Creative Copy Director, Machine Learning Scientist, Commercial Illustrator).`;
 
-      for (const mName of modelNames) {
-        try {
-          model = genAI.getGenerativeModel({ 
-            model: mName,
-            generationConfig: { responseMimeType: 'application/json' }
-          });
-          if (model) break;
-        } catch {
-          // try next model name
-        }
-      }
+    const systemInstruction = `You are a World-Class Principal AI Prompt Architect and Senior AI Systems Engineer.
+Your mission is to transform any user prompt or idea (written in ANY language such as English, Gujarati, Hindi, Spanish, French, German, Japanese, Chinese, Arabic, etc.) into an EXTREMELY SUFFICIENT, HIGH-PERFORMANCE, PRODUCTION-READY PROMPT.
 
-      if (!model) {
-        model = genAI.getGenerativeModel({ 
-          model: 'gemini-1.5-flash-latest',
-          generationConfig: { responseMimeType: 'application/json' }
-        });
-      }
+CRITICAL QUALITY DIRECTIVE — "SUFFICIENT & DEEPLY ELABORATED":
+- The user requires a "VERY SUFFICIENT" prompt. 
+- A sufficient prompt is NEVER a brief 4-line summary or a shallow boilerplate template.
+- You must deeply unpack and expand the user's raw idea into an exhaustive, highly specific, and actionable prompt specification that extracts maximum quality and zero hallucinations from downstream AI models (ChatGPT, Claude 3.7, Gemini 2.5, DeepSeek R1, Midjourney, etc.).
 
-      const isAutoDetect = role === 'Auto Detect' || role === '';
-      const roleDirective = !isAutoDetect
-        ? `Target Persona: "${role}". You MUST engineer the prompt specifically for an expert in "${role}".`
-        : `Target Persona: Auto-detect the best domain expert role (Software Architect, Visual Artist, Copywriter, Tutor, Data Scientist, etc.).`;
+STRUCTURE OF THE SUFFICIENT ENHANCED PROMPT:
+Format the prompt using clean, professional Markdown headings (do NOT use rigid brackets like [ROLE & PERSONA] if natural Markdown headings provide richer clarity, or use clean Markdown '##' sections):
 
-      const systemInstruction = `You are a Principal AI Prompt Engineer & Master AI Systems Architect.
-Your mission is to transform basic user ideas (written in ANY language such as Gujarati, Hindi, Spanish, French, German, Japanese, Chinese, Arabic, etc.) into COMPREHENSIVE, HIGH-PERFORMANCE PRO-LEVEL PROMPTS that produce exceptional, error-free results across any AI system (ChatGPT, Claude, Gemini, DeepSeek, Midjourney).
+## 1. Role & Persona
+Define the exact domain authority, expertise level, mindset, and technical standards the AI must adopt.
 
-STRICT MULTI-LANGUAGE TRANSLATION DIRECTIVE:
-- User Input Language: Can be ANY language (e.g. Gujarati, Hindi, Spanish, French, German, Japanese, Chinese, Arabic, etc.).
+## 2. Objective, Context & Project Scope
+Thoroughly unpack what is being built or solved. State the overarching mission, target users, problem context, and end goals in deep detail.
+
+## 3. Comprehensive Specifications & Functional Requirements
+Break down the request into detailed, itemized feature specifications, user journeys, operational logic, data models, UI components, or narrative elements. Never be vague; spell out exact sub-components and capabilities.
+
+## 4. Technical Architecture, Standards & Stack Directives
+Specify the exact best-practice methodologies (e.g., modular architecture, clean code, design tokens, responsive typography, performance budgets, styling systems, or prompt rendering parameters).
+
+## 5. Edge Cases, Validation, Security & Quality Constraints
+Detail explicit handling for edge cases, error boundaries, input validation, accessibility (WCAG), failure recovery, and zero-assumption directives.
+
+## 6. Expected Deliverables & Output Format
+Provide an exact checklist of what the AI must deliver (e.g., complete runnable code without placeholders, documentation, configuration files, setup guides, or finalized high-converting copy).
+
+LANGUAGE HANDLING:
+- User Input Language: May be ANY language (e.g., Gujarati, Hindi, Spanish, French, German, etc.).
 - Target Output Language: ${outputLang === 'Same as input' ? 'SAME PRIMARY LANGUAGE AS INPUT' : '100% ENGLISH ONLY'}.
-- MANDATORY RULE: ${outputLang === 'Same as input' ? 'Output in same input language.' : 'You MUST translate the user intent from Gujarati (or any input language) into ENGLISH. The entire "enhancedPrompt" string MUST be written 100% in crisp, professional, high-grade ENGLISH. Under NO circumstances should any section header, objective, rule, or constraint in "enhancedPrompt" contain Gujarati or non-English script.'}
+- Translation Rule: ${outputLang === 'Same as input' ? 'Preserve user input language.' : 'Translate the user intent completely into crisp, authoritative, professional ENGLISH. Every section and bullet must be in fluent English.'}
 
-CRITICAL FORMATTING RULE (NO EMOJIS / NO ICONS):
-- Do NOT use any emojis, icons, or pictorial symbols (e.g. no 🎯, 📍, ⚡, 📄, 💻, 🌐, etc.) anywhere inside the enhanced prompt text.
-- Present the prompt using clean, professional, high-impact section headings in brackets (e.g. [ROLE & PERSONA], [OBJECTIVE & SCOPE], [CORE RULES & TECHNICAL CONSTRAINTS], [EXPECTED OUTPUT FORMAT]).
-- Use clean dashes (-) for bullet lists. Ensure layout is elegant, scannable, and impressive to read.
-
-PRO PROMPT ENGINEERING ARCHITECTURE:
-Generate a thorough, structured, highly effective prompt following this exact architecture:
-
-[ROLE & PERSONA]
-[Specific Elite Persona & Expertise Domain]
-
-[OBJECTIVE & SCOPE]
-[Detailed, unambiguous goal statement in ENGLISH preserving full user intent]
-
-[CORE RULES & TECHNICAL CONSTRAINTS]
-- Detailed quality standards, technical specifications, and domain best practices
-- Strict error-prevention, edge-case handling, and architectural guidelines
-- Performance, design aesthetic, accessibility, and zero-assumption directives
-
-[EXPECTED OUTPUT FORMAT]
-[Exact expected structure: production-ready code, step-by-step documentation, or high-res rendering parameters]
-
-ESSENTIAL DETAILED CONTENT RULE:
-- The enhanced prompt CAN BE AS DETAILED AND COMPREHENSIVE AS REQUIRED for the task.
-- Every single sentence, bullet point, and directive MUST contain ESSENTIAL, ACTIONABLE VALUE.
-- Eliminate generic fluff, meaningless filler, or repetitive text. Focus on MAXIMAL TECHNICAL CLARITY AND COMPLETENESS.
-- ${roleDirective}
+STRICT FORMATTING RULE:
+- Do NOT use emojis, pictorial icons (no 🎯, 📍, ⚡, 🚀, 💻, etc.).
+- Use clean Markdown syntax (headings ##, bold text, bullet dashes -, and code blocks).
 
 Return ONLY a valid JSON object matching this schema EXACTLY:
 {
-  "detectedLanguage": "Primary language of input prompt (e.g. Gujarati, Hindi, Spanish, French, German, Japanese, etc.)",
-  "enhancedPrompt": "The comprehensive, essential, pro-level enhanced prompt string WRITTEN 100% IN ENGLISH",
+  "detectedLanguage": "Primary language of input prompt (e.g. English, Gujarati, Hindi, Spanish, etc.)",
+  "enhancedPrompt": "The exhaustive, deeply elaborated, and very sufficient enhanced prompt in Markdown",
   "improvements": [
-    "Short 3-5 word improvement 1",
-    "Short 3-5 word improvement 2",
-    "Short 3-5 word improvement 3",
-    "Short 3-5 word improvement 4"
+    "Specific improvement 1",
+    "Specific improvement 2",
+    "Specific improvement 3",
+    "Specific improvement 4",
+    "Specific improvement 5"
   ]
 }`;
 
-      const promptPayload = `USER INPUT PROMPT: "${rawPrompt}"
-TARGET ROLE: "${role}"
-REQUIRED OUTPUT LANGUAGE: ${outputLang === 'Same as input' ? 'Same as input' : 'ENGLISH ONLY'}
+    const promptPayload = `USER RAW PROMPT: "${rawPrompt}"
+USER SELECTED ROLE: "${role}"
+LANGUAGE REQUIREMENT: ${outputLang === 'Same as input' ? 'Keep same as input' : 'ENGLISH ONLY'}
+${roleDirective}
 
-MANDATE: Understand intent from "${rawPrompt}" (which may be in Gujarati or other language). Output the enhanced prompt completely in ENGLISH.`;
-      const result = await model.generateContent(`${systemInstruction}\n\n${promptPayload}`);
-      const text = result.response.text();
-      
-      const parsed = parseJsonSafely(text);
+MANDATE: Expand this raw request into a comprehensive, highly sufficient, production-ready master prompt.`;
 
-      if (parsed && parsed.enhancedPrompt && Array.isArray(parsed.improvements)) {
-        const detectedLang = parsed.detectedLanguage || detectBasicLanguage(rawPrompt);
-        const improvementsList = [...parsed.improvements.slice(0, 5)];
-        if (detectedLang && detectedLang !== 'English' && outputLang !== 'Same as input') {
-          improvementsList.unshift(`Translated & enhanced from ${detectedLang} to English`);
+    const modelNames = ['gemini-2.5-flash', 'gemini-2.0-flash', 'gemini-1.5-flash', 'gemini-1.5-flash-latest', 'gemini-1.5-pro'];
+
+    for (const mName of modelNames) {
+      try {
+        const model = genAI.getGenerativeModel({
+          model: mName,
+          generationConfig: {
+            responseMimeType: 'application/json',
+            temperature: 0.7,
+          },
+        });
+
+        const result = await model.generateContent(`${systemInstruction}\n\n${promptPayload}`);
+        const text = result.response.text();
+        const parsed = parseJsonSafely(text);
+
+        if (parsed && parsed.enhancedPrompt && typeof parsed.enhancedPrompt === 'string' && parsed.enhancedPrompt.trim().length > 50) {
+          const detectedLang = parsed.detectedLanguage || detectBasicLanguage(rawPrompt);
+          const improvementsList = Array.isArray(parsed.improvements) ? [...parsed.improvements.slice(0, 5)] : [];
+          if (detectedLang && detectedLang !== 'English' && outputLang !== 'Same as input') {
+            improvementsList.unshift(`Translated from ${detectedLang} to English`);
+          }
+          return {
+            enhancedPrompt: cleanPromptOutput(parsed.enhancedPrompt),
+            improvements: improvementsList.slice(0, 5),
+            detectedLanguage: detectedLang,
+          };
         }
-        return {
-          enhancedPrompt: cleanPromptOutput(parsed.enhancedPrompt),
-          improvements: improvementsList.slice(0, 5),
-          detectedLanguage: detectedLang,
-        };
+      } catch (err) {
+        console.warn(`Gemini model ${mName} attempt failed, trying fallback model:`, err);
       }
-    } catch (err) {
-      console.warn('Gemini API execution failed, switching to local enhancement fallback:', err);
     }
   }
 
@@ -134,69 +128,164 @@ function fallbackEnhance(rawPrompt: string, outputLang: OutputLanguageOption, ro
       effectiveRole = 'Content Writing & Copy';
     } else if (text.includes('teach') || text.includes('explain') || text.includes('learn') || text.includes('concept')) {
       effectiveRole = 'Education & Tutoring';
+    } else if (text.includes('data') || text.includes('analysis') || text.includes('dataset') || text.includes('chart') || text.includes('sql')) {
+      effectiveRole = 'Data Science & Analysis';
+    } else if (text.includes('marketing') || text.includes('business') || text.includes('sales') || text.includes('growth')) {
+      effectiveRole = 'Business & Marketing';
     } else {
-      effectiveRole = 'AI Assistant';
+      effectiveRole = 'Software Developer';
     }
   }
 
   let enhanced = '';
 
   if (effectiveRole === 'Software Developer') {
-    improvements.push('Applied Senior Software Architect persona');
-    improvements.push('Enforced production code & type safety');
-    improvements.push('Defined modular architecture standards');
-    improvements.push('Added edge-case validation & unit testability');
+    improvements.push('Applied Principal Software Architect Persona');
+    improvements.push('Expanded full technical architecture & data flow');
+    improvements.push('Enforced production error handling & edge cases');
+    improvements.push('Added runnable code & automated testing specs');
 
-    enhanced = `[ROLE & PERSONA]\nPrincipal Software Architect & Senior Engineer\n\n[OBJECTIVE & SCOPE]\nDesign and build a production-grade software solution for: "${scopePrompt}".\n\n[CORE RULES & TECHNICAL CONSTRAINTS]\n- Architecture: Write clean, modular, maintainable code following SOLID design principles.\n- Type Safety & Reliability: Implement strict type definitions, robust error boundaries, and input validation.\n- Quality Standards: Include self-documenting syntax, inline comments for non-obvious logic, and unit testability.\n- Execution: Output fully runnable production code without placeholders, broken imports, or missing implementations.\n\n[EXPECTED OUTPUT FORMAT]\nExecutable code blocks structured logically by file/module with technical setup instructions.`;
+    enhanced = `## 1. Role & Persona
+You are a Principal Software Architect and Senior Systems Engineer with deep expertise in designing scalable, fault-tolerant, and maintainable software systems.
+
+## 2. Objective, Context & Project Scope
+Design and implement a complete, production-ready software solution for: "${scopePrompt}".
+The objective is to deliver clean, modular, and enterprise-grade code that is immediately deployable, highly performant, and simple for developers to extend.
+
+## 3. Comprehensive Specifications & Functional Requirements
+- Core Logic: Implement all primary business logic, request handling, and state transformations required for "${scopePrompt}".
+- Data Structures: Define explicit types, interfaces, schemas, or data models for all inputs, outputs, and intermediate states.
+- Separation of Concerns: Decouple business logic from external I/O, configuration, and presentation layers.
+- Modularity: Structure the code into logical modules, classes, and helper functions with single responsibilities.
+
+## 4. Technical Architecture & Coding Standards
+- Clean Code: Adhere to SOLID design principles, DRY (Don't Repeat Yourself), and idiomatic language conventions.
+- Type Safety: Enforce strict type definitions, input validation, and zero unsafe type assertions.
+- Documentation: Provide clear docstrings explaining function parameters, return types, and non-trivial algorithmic decisions.
+- Performance: Optimize time and space complexity; avoid blocking operations and unindexed lookups.
+
+## 5. Edge Cases, Validation & Security
+- Input Validation: Validate and sanitize all user and external inputs against malformed data, null/undefined values, and boundaries.
+- Graceful Error Handling: Wrap fallible operations in robust try-catch blocks with descriptive error logs and user-friendly error codes.
+- Security: Safeguard against injection attacks, sensitive credential exposure, and resource exhaustion.
+
+## 6. Expected Deliverables & Output Format
+- Complete, runnable source code files without placeholders, ellipses (...), or missing implementations.
+- Setup instructions including dependency installation commands and environment configuration.
+- A suite of unit tests verifying both happy paths and boundary edge cases.`;
   } else if (effectiveRole === 'Web Development') {
-    improvements.push('Applied Lead Web Developer persona');
-    improvements.push('Enforced responsive UI/UX design rules');
-    improvements.push('Specified frontend architecture standards');
-    improvements.push('Added accessibility & micro-interaction guidelines');
+    improvements.push('Applied Lead Full-Stack & UI/UX Architect Persona');
+    improvements.push('Specified responsive design & design system standards');
+    improvements.push('Included modern layout, state & micro-interactions');
+    improvements.push('Enforced accessibility (WCAG AA) & SEO readiness');
 
-    enhanced = `[ROLE & PERSONA]\nLead Frontend Systems Architect & UI/UX Specialist\n\n[OBJECTIVE & SCOPE]\nDesign and engineer a responsive, modern web application interface for: "${scopePrompt}".\n\n[CORE RULES & TECHNICAL CONSTRAINTS]\n- Design System: Implement modern typography, curated color palettes, smooth glassmorphism, and responsive CSS flex/grid layouts.\n- User Experience: Ensure 100% fluid responsive adaptation across mobile, tablet, and desktop viewports with interactive hover micro-animations.\n- Standards: Use semantic HTML5 elements, accessible ARIA attributes, and fast loading performance.\n- Production Readiness: Provide self-contained component code with zero broken styling dependencies.\n\n[EXPECTED OUTPUT FORMAT]\nComplete component markup and style files with clear integration instructions.`;
+    enhanced = `## 1. Role & Persona
+You are a Lead Web Solutions Architect and Senior Frontend Engineer specializing in high-performance, aesthetically stunning, and responsive web applications.
+
+## 2. Objective, Context & Project Scope
+Design and engineer a complete, modern web solution for: "${scopePrompt}".
+The interface must deliver a breathtaking, intuitive user experience across mobile, tablet, and desktop viewports, combining top-tier visual polish with seamless functionality.
+
+## 3. Comprehensive UI/UX & Functional Specifications
+- Hero & Primary View: Create an impactful header and hero section with clear value propositions and strong call-to-action (CTA) buttons.
+- Core Feature Modules: Build interactive modules for "${scopePrompt}", including item displays, filtering/search, detail cards, and modal dialogs.
+- State Management: Implement fluid state management for user selections, form inputs, loading indicators, and confirmation states.
+- Interactive Micro-animations: Incorporate subtle hover effects, smooth transitions, and tactile feedback on button clicks.
+
+## 4. Design System & Frontend Architecture
+- Styling & Aesthetics: Utilize a curated color palette (dark/light mode harmony), modern typography, generous whitespace, and sleek glassmorphic card borders.
+- Responsive Layout: Implement fluid CSS Flexbox and Grid layouts that adapt seamlessly from 320px mobile screens to ultra-wide displays.
+- Semantic HTML: Use appropriate HTML5 tags (<header>, <main>, <section>, <nav>, <footer>) for optimal document hierarchy.
+- Web Performance: Optimize asset delivery, minimize render-blocking scripts, and ensure fast First Contentful Paint (FCP).
+
+## 5. Quality, Accessibility & Error Handling
+- Accessibility: Ensure WCAG 2.1 AA compliance with visible focus outlines, high-contrast text, keyboard navigation, and proper ARIA attributes.
+- Form Validation: Implement instant client-side input validation with friendly error states.
+- Cross-Browser Compatibility: Ensure flawless operation across modern Chrome, Safari, Firefox, and Edge browsers.
+
+## 6. Expected Deliverables & Output Format
+- Full, self-contained HTML/CSS/JS or component code (React / Next.js) with zero missing styles or broken imports.
+- Step-by-step setup and integration instructions.`;
   } else if (effectiveRole === 'AI Image Generation') {
-    improvements.push('Applied AI Visual Artist persona');
-    improvements.push('Enforced 8K cinematic lighting & composition');
-    improvements.push('Optimized for Midjourney / DALL-E models');
-    improvements.push('Added camera parameter specs');
+    improvements.push('Applied Master AI Visual Director Persona');
+    improvements.push('Detailed 8K cinematic lighting & composition');
+    improvements.push('Configured camera lenses, focal length & aperture');
+    improvements.push('Tailored for Midjourney v6, Flux.1 & DALL-E 3');
 
-    enhanced = `[ROLE & PERSONA]\nMaster AI Art Director & Visual Prompt Specialist\n\n[OBJECTIVE & SCOPE]\nGenerate a high-resolution visual concept for: "${scopePrompt}".\n\n[CORE RULES & TECHNICAL CONSTRAINTS]\n- Aesthetic Style: Ultra-detailed 8K photographic rendering, professional studio cinematography, and photorealistic texture detail.\n- Lighting & Color: Volumetric ambient lighting, rich high-contrast shadows, and harmonious color balance.\n- Composition & Camera: 85mm lens perspective, f/1.8 aperture with smooth bokeh, Octane render depth, and razor-sharp subject focus.\n\n[EXPECTED OUTPUT FORMAT]\nFully formatted visual text prompt optimized for Midjourney v6, DALL-E 3, or Flux.1 models.`;
+    enhanced = `## 1. Role & Persona
+You are a Master AI Art Director and Cinematic Concept Artist with world-class expertise in visual storytelling, studio lighting, and generative image model prompting.
+
+## 2. Objective & Visual Concept
+Formulate an ultra-detailed, photorealistic visual prompt specification for: "${scopePrompt}".
+The visual must capture pristine photographic clarity, evocative atmosphere, and award-winning compositional balance.
+
+## 3. Detailed Visual Composition & Subject Specs
+- Primary Subject: Richly detailed depiction of "${scopePrompt}", highlighting organic textures, natural imperfections, and intricate surface depth.
+- Environment & Background: Contextual, immersive scenery with cinematic depth-of-field, subtle atmospheric particles, and volumetric light rays.
+- Color Palette: Harmonious chromatic harmony, balanced shadows, rich mid-tones, and natural specular highlights.
+
+## 4. Cinematic Lighting & Camera Parameters
+- Lighting Setup: Studio-grade lighting, subtle rim light separating the subject from the background, and soft diffused fill.
+- Camera Specs: 85mm portrait prime lens, shot at f/1.8 aperture for creamy bokeh background separation, ISO 100, 1/500s shutter speed.
+- Rendering Engine: Octane 3D render fidelity, photorealistic global illumination, raytraced reflections, 8K ultra-resolution textures.
+
+## 5. Negative Prompt Directives & Quality Guards
+- Exclude: Blurry details, plastic skin, distorted hands, oversaturated hues, awkward proportions, text artifacts, or watermark logos.
+
+## 6. Expected Deliverables & Output Format
+- Ready-to-use master prompt optimized for Midjourney v6, Flux.1, or DALL-E 3.
+- Parameter appendix (--ar 16:9, --style raw, --v 6.0, --q 2).
+- Complete negative prompt parameter block.`;
   } else if (effectiveRole === 'Content Writing & Copy') {
-    improvements.push('Applied Senior Content Director persona');
-    improvements.push('Enforced high-converting copy structure');
-    improvements.push('Defined tone & clarity constraints');
-    improvements.push('Added audience engagement rules');
+    improvements.push('Applied Chief Direct-Response Copywriter Persona');
+    improvements.push('Structured high-converting AIDA framework');
+    improvements.push('Added audience hook, value pillars & CTA');
+    improvements.push('Optimized tone, scannability & engagement');
 
-    enhanced = `[ROLE & PERSONA]\nSenior Content Director & Direct-Response Copywriter\n\n[OBJECTIVE & SCOPE]\nDraft high-converting, authoritative editorial copy based on: "${scopePrompt}".\n\n[CORE RULES & TECHNICAL CONSTRAINTS]\n- Attention Hook: Open with an impactful, curiosity-driven statement commanding immediate attention.\n- Content Flow: Structure scannable, value-packed paragraphs with bold subheadings and persuasive active tone.\n- Audience Value: Deliver actionable takeaways, clear benefit messaging, and eliminate fluff.\n- Conversion CTA: Conclude with a strong, unambiguous call-to-action driving target reader engagement.\n\n[EXPECTED OUTPUT FORMAT]\nFormatted Markdown copy ready for publication across digital channels.`;
-  } else if (effectiveRole === 'Data Science & Analysis') {
-    improvements.push('Applied Senior Data Scientist persona');
-    improvements.push('Structured analytical methodology');
-    improvements.push('Defined KPI & summary table format');
-    improvements.push('Added quantitative correlation rules');
+    enhanced = `## 1. Role & Persona
+You are a Chief Direct-Response Copywriter and Senior Editorial Strategist known for crafting high-converting, persuasive, and engaging written content.
 
-    enhanced = `[ROLE & PERSONA]\nLead Data Scientist & Quantitative Analyst\n\n[OBJECTIVE & SCOPE]\nConduct a comprehensive analytical evaluation and data investigation for: "${scopePrompt}".\n\n[CORE RULES & TECHNICAL CONSTRAINTS]\n- Methodology: Formulate primary statistical metrics, data collection assumptions, and analytical frameworks.\n- Insights: Identify key correlation trends, performance anomalies, and quantitative data patterns.\n- Rigor: Maintain objective, data-backed reasoning with clear risk assessment.\n\n[EXPECTED OUTPUT FORMAT]\nExecutive summary report featuring Markdown data tables, key observations, and strategic recommendations.`;
-  } else if (effectiveRole === 'Education & Tutoring') {
-    improvements.push('Applied Master Educational Tutor persona');
-    improvements.push('Structured step-by-step breakdown');
-    improvements.push('Added real-world analogies & self-tests');
-    improvements.push('Defined progressive learning path');
+## 2. Objective, Audience & Narrative Strategy
+Produce authoritative, compelling, and value-packed copy for: "${scopePrompt}".
+The narrative must immediately hook the reader, articulate distinct benefits, resolve objections, and drive decisive action.
 
-    enhanced = `[ROLE & PERSONA]\nSenior Academic Educator & Pedagogical Expert\n\n[OBJECTIVE & SCOPE]\nTeach and explain "${scopePrompt}" clearly from foundational concepts to advanced practical mastery.\n\n[CORE RULES & TECHNICAL CONSTRAINTS]\n- Concept Hierarchy: Break down complex topics into intuitive step-by-step modules.\n- Mental Models: Anchor theoretical definitions with relatable real-world analogies.\n- Practical Application: Include concrete code/math/concept examples to demonstrate real use.\n- Mastery Verification: Provide 3 targeted self-assessment questions with answer keys to test retention.\n\n[EXPECTED OUTPUT FORMAT]\nComprehensive educational tutorial structured for rapid comprehension and long-term retention.`;
-  } else if (effectiveRole === 'Business & Marketing') {
-    improvements.push('Applied Business Growth Strategist persona');
-    improvements.push('Enforced target persona & KPI roadmap');
-    improvements.push('Structured market positioning framework');
-    improvements.push('Added ROI metric tracking');
+## 3. Content Architecture & Framework
+- Attention Hook: Open with a bold headline and curiosity-inducing hook that addresses the reader's primary pain point or aspiration.
+- Core Value Pillars: Unpack 3-5 distinct, benefit-rich points with clear subheadings, concise explanations, and real-world examples.
+- Social Proof & Trust: Weave in credibility markers, data-backed reasoning, and relatable perspectives to build immediate trust.
+- Clear Call-to-Action (CTA): Conclude with an irresistible, friction-free action prompt directing the reader's next step.
 
-    enhanced = `[ROLE & PERSONA]\nChief Growth Strategist & Marketing Director\n\n[OBJECTIVE & SCOPE]\nFormulate an end-to-end strategic growth plan for: "${scopePrompt}".\n\n[CORE RULES & TECHNICAL CONSTRAINTS]\n- Market Strategy: Define target audience persona, unique value proposition, and competitive differentiation.\n- Channels & Tactics: Outline multi-channel customer acquisition tactics, content funnel, and execution timeline.\n- Unit Economics: Specify key metric benchmarks (CAC, LTV, ROI, conversion rates) to track execution success.\n\n[EXPECTED OUTPUT FORMAT]\nExecutive strategic roadmap featuring milestone timelines and actionable execution directives.`;
+## 4. Voice, Tone & Formatting Standards
+- Tone: Authoritative yet accessible, empathetic, crisp, and completely free of filler or buzzword clichés.
+- Scannability: Structure short, rhythmic paragraphs (2-3 sentences), bullet points, and bold emphasis for effortless readability.
+- Reading Level: High impact, Grade 8-10 comprehension level to maximize audience reach and engagement.
+
+## 5. Expected Deliverables & Output Format
+- Complete, publication-ready Markdown copy with headline variations, subheadings, and formatted body text.`;
   } else {
-    improvements.push(`Applied custom persona: ${effectiveRole}`);
-    improvements.push('Enforced pro-level domain standards');
-    improvements.push('Defined structured output format');
-    improvements.push('Added complete execution rules');
+    improvements.push(`Applied Master ${effectiveRole} Authority Persona`);
+    improvements.push('Deeply structured objective & core requirements');
+    improvements.push('Added actionable execution directives');
+    improvements.push('Defined comprehensive deliverable standards');
 
-    enhanced = `[ROLE & PERSONA]\nElite Expert in ${effectiveRole}\n\n[OBJECTIVE & SCOPE]\nDeliver a comprehensive, high-impact solution for: "${scopePrompt}".\n\n[CORE RULES & TECHNICAL CONSTRAINTS]\n- Industry Standards: Enforce leading professional domain practices and quality benchmarks for ${effectiveRole}.\n- Precision & Clarity: Eliminate ambiguity, provide thorough technical guidance, and address potential edge-cases.\n- Value Delivery: Focus on actionable, practical, and highly effective output.\n\n[EXPECTED OUTPUT FORMAT]\nThoroughly structured Markdown document with clear headers and executable guidelines.`;
+    enhanced = `## 1. Role & Persona
+You are an Elite Industry Specialist and Strategic Advisor in ${effectiveRole}.
+
+## 2. Objective & Comprehensive Scope
+Deliver a thorough, master-level solution for: "${scopePrompt}".
+Provide unambiguous, deeply actionable guidance that solves the core challenge with exceptional quality.
+
+## 3. Detailed Requirements & Actionable Methodology
+- Systematic Breakdown: Deconstruct "${scopePrompt}" into actionable phases and tactical components.
+- Domain Best Practices: Apply leading industry standards, verified analytical frameworks, and practical techniques.
+- Concrete Guidance: Avoid superficial summaries; provide specific examples, workflows, and implementation details.
+
+## 4. Quality Control & Risk Mitigation
+- Identify common pitfalls, edge cases, and failure points associated with this domain.
+- Provide defensive strategies, verification checklists, and quality assurance checkpoints.
+
+## 5. Expected Deliverables & Output Format
+- A thoroughly structured, production-ready Markdown document containing complete implementation steps, guidelines, and reference specifications.`;
   }
 
   const detectedLang = detectBasicLanguage(rawPrompt);
@@ -259,11 +348,6 @@ export function cleanPromptOutput(promptText: string): string {
   // Remove emojis and pictorial symbols
   const sanitized = promptText
     .replace(/[\u{1F300}-\u{1F9FF}\u{1F600}-\u{1F64F}\u{2700}-\u{27BF}\u{1F680}-\u{1F6FF}\u{24C2}-\u{1F251}\u{1F900}-\u{1F9FF}\u{1F004}\u{1F0CF}\u{1F170}-\u{1F19A}]/gu, '')
-    // Normalize any legacy heading prefixes like "ROLE & PERSONA:" to "[ROLE & PERSONA]"
-    .replace(/^(?:🎯|📍|⚡|📄)?\s*ROLE & PERSONA:/gim, '[ROLE & PERSONA]\n')
-    .replace(/^(?:🎯|📍|⚡|📄)?\s*OBJECTIVE & SCOPE:/gim, '[OBJECTIVE & SCOPE]\n')
-    .replace(/^(?:🎯|📍|⚡|📄)?\s*CORE RULES & TECHNICAL CONSTRAINTS:/gim, '[CORE RULES & TECHNICAL CONSTRAINTS]\n')
-    .replace(/^(?:🎯|📍|⚡|📄)?\s*EXPECTED OUTPUT FORMAT:/gim, '[EXPECTED OUTPUT FORMAT]\n')
     .trim();
 
   return sanitized;

@@ -37,16 +37,16 @@ export const Navbar: React.FC = () => {
 
   return (
     <header
-      className={`fixed top-0 left-0 right-0 z-50 w-full px-3 sm:px-6 lg:px-8 transition-all duration-200 ease-out ${
+      className={`fixed top-0 left-0 right-0 z-50 w-full px-3 sm:px-6 lg:px-8 transition-all duration-300 ease-out pointer-events-none ${
         scrolled
-          ? 'pt-3.5 sm:pt-4 pb-2.5 bg-white/80 dark:bg-black/80 shadow-sm backdrop-blur-md'
-          : 'pt-5 sm:pt-6 pb-3 bg-white/75 dark:bg-black/75 backdrop-blur-md'
+          ? 'pt-3 sm:pt-3.5 pb-2'
+          : 'pt-5 sm:pt-6 pb-3'
       }`}
     >
-      <div className="max-w-6xl mx-auto">
+      <div className="max-w-6xl mx-auto pointer-events-auto">
         {/* Main Floating Bar */}
         <div
-          className={`relative bg-zinc-200 dark:bg-zinc-100 text-zinc-900 shadow-md border border-zinc-300/80 dark:border-zinc-300 flex items-center justify-between overflow-hidden transition-all duration-300 ease-in-out ${
+          className={`relative bg-zinc-100/90 dark:bg-zinc-900/90 text-zinc-900 dark:text-zinc-100 shadow-md border border-zinc-300/80 dark:border-zinc-800/80 backdrop-blur-md flex items-center justify-between overflow-hidden transition-all duration-300 ease-in-out ${
             scrolled
               ? 'h-11 sm:h-13 rounded-xl sm:rounded-2xl shadow-lg'
               : 'h-14 sm:h-16 rounded-2xl sm:rounded-3xl shadow-md'
@@ -86,13 +86,13 @@ export const Navbar: React.FC = () => {
           <nav className="hidden md:flex items-center gap-6 lg:gap-8 px-4">
             <Link
               href="/"
-              className="text-xs font-semibold text-zinc-900 hover:text-black transition-colors"
+              className="text-xs font-semibold text-zinc-800 hover:text-black dark:text-zinc-300 dark:hover:text-white transition-colors"
             >
               Home
             </Link>
             <button
               onClick={scrollToHowItWorks}
-              className="text-xs font-semibold text-zinc-700 hover:text-black transition-colors"
+              className="text-xs font-semibold text-zinc-600 hover:text-black dark:text-zinc-400 dark:hover:text-white transition-colors"
             >
               How It Works
             </button>
@@ -100,7 +100,7 @@ export const Navbar: React.FC = () => {
               href="https://kaushalthakor.in"
               target="_blank"
               rel="noopener noreferrer"
-              className="text-xs font-semibold text-zinc-700 hover:text-black transition-colors flex items-center gap-1"
+              className="text-xs font-semibold text-zinc-600 hover:text-black dark:text-zinc-400 dark:hover:text-white transition-colors flex items-center gap-1"
             >
               Meet the Developer
             </a>
@@ -113,23 +113,23 @@ export const Navbar: React.FC = () => {
               onClick={toggleTheme}
               title={theme === 'dark' ? 'Switch to Light Theme' : 'Switch to Dark Theme'}
               aria-label="Toggle Theme"
-              className="p-1.5 rounded-lg text-zinc-700 hover:text-black hover:bg-zinc-300/60 dark:hover:bg-zinc-200 transition-colors focus:outline-none"
+              className="p-1.5 rounded-lg text-zinc-700 dark:text-zinc-300 hover:text-black dark:hover:text-white hover:bg-zinc-200/70 dark:hover:bg-zinc-800 transition-colors focus:outline-none"
             >
               {theme === 'dark' ? (
-                <Sun className="w-4 h-4 text-amber-600 hover:rotate-12 transition-transform" />
+                <Sun className="w-4 h-4 text-amber-400 hover:rotate-12 transition-transform" />
               ) : (
-                <Moon className="w-4 h-4 text-zinc-800 hover:-rotate-12 transition-transform" />
+                <Moon className="w-4 h-4 text-zinc-700 hover:-rotate-12 transition-transform" />
               )}
             </button>
 
             {/* Enhance Prompt CTA */}
             <button
               onClick={scrollToEditor}
-              className={`bg-black hover:bg-zinc-800 text-white rounded-xl text-xs font-semibold shadow-sm flex items-center gap-1.5 transition-all duration-300 hover:scale-[1.02] active:scale-[0.98] ${
+              className={`bg-black hover:bg-zinc-800 text-white dark:bg-white dark:text-black dark:hover:bg-zinc-200 rounded-xl text-xs font-semibold shadow-sm flex items-center gap-1.5 transition-all duration-300 hover:scale-[1.02] active:scale-[0.98] ${
                 scrolled ? 'px-3 py-1 sm:py-1.5' : 'px-3.5 py-1.5 sm:py-2'
               }`}
             >
-              <Zap className="w-3.5 h-3.5 text-white fill-current" />
+              <Zap className="w-3.5 h-3.5 text-white dark:text-black fill-current" />
               <span>Enhance Prompt</span>
             </button>
           </div>
@@ -140,18 +140,18 @@ export const Navbar: React.FC = () => {
               onClick={toggleTheme}
               title={theme === 'dark' ? 'Switch to Light Theme' : 'Switch to Dark Theme'}
               aria-label="Toggle Theme"
-              className="p-1.5 rounded-lg text-zinc-800 hover:bg-zinc-300/60 focus:outline-none"
+              className="p-1.5 rounded-lg text-zinc-800 dark:text-zinc-200 hover:bg-zinc-200/70 dark:hover:bg-zinc-800 focus:outline-none"
             >
               {theme === 'dark' ? (
-                <Sun className="w-4 h-4 text-amber-600" />
+                <Sun className="w-4 h-4 text-amber-400" />
               ) : (
-                <Moon className="w-4 h-4 text-zinc-800" />
+                <Moon className="w-4 h-4 text-zinc-700" />
               )}
             </button>
 
             <button
               onClick={() => setMobileOpen(!mobileOpen)}
-              className="text-zinc-800 p-1.5 rounded-lg hover:bg-zinc-300/60 focus:outline-none"
+              className="text-zinc-800 dark:text-zinc-200 p-1.5 rounded-lg hover:bg-zinc-200/70 dark:hover:bg-zinc-800 focus:outline-none"
               aria-label="Toggle Navigation Menu"
             >
               {mobileOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
